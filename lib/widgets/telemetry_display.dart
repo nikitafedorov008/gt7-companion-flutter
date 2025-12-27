@@ -9,8 +9,13 @@ class TelemetryDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isDesktop = screenWidth > 600;
     return Container(
-      padding: EdgeInsets.all(8.0),
+      padding: EdgeInsets.all(isDesktop ? 16.0 : 8.0),
+      constraints: BoxConstraints(
+        maxWidth: isDesktop ? 1200 : double.infinity,
+      ),
       child: errorMessage != null
           ? Center(
               child: Text(
@@ -40,22 +45,22 @@ class TelemetryDisplay extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   // Header
-                                  _buildHeader(),
+                                  _buildHeader(isDesktop),
 
                                   // Track Data
                                   _buildSectionHeader('Current Track Data'),
-                                  _buildTrackData(),
+                                  _buildTrackData(context, isDesktop),
 
                                   // Car Data
                                   _buildSectionHeader('Current Car Data'),
-                                  _buildCarData(),
+                                  _buildCarData(context, isDesktop),
 
                                   // Tire Data
                                   _buildSectionHeader('Tyre Data'),
-                                  _buildTireData(),
+                                  _buildTireData(context, isDesktop),
 
                                   // Gearing and Positioning
-                                  Row(
+                                  isDesktop ? Row(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Expanded(
@@ -64,7 +69,7 @@ class TelemetryDisplay extends StatelessWidget {
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             _buildSectionHeader('Gearing'),
-                                            _buildGearingData(),
+                                            _buildGearingData(context, isDesktop),
                                           ],
                                         ),
                                       ),
@@ -75,15 +80,32 @@ class TelemetryDisplay extends StatelessWidget {
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             _buildSectionHeader('Positioning (m)'),
-                                            _buildPositioningData(),
+                                            _buildPositioningData(isDesktop),
                                           ],
                                         ),
+                                      ),
+                                    ],
+                                  ) : Column(
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          _buildSectionHeader('Gearing'),
+                                          _buildGearingData(context, isDesktop),
+                                        ],
+                                      ),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          _buildSectionHeader('Positioning (m)'),
+                                          _buildPositioningData(isDesktop),
+                                        ],
                                       ),
                                     ],
                                   ),
 
                                   // Velocity and Rotation
-                                  Row(
+                                  isDesktop ? Row(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Expanded(
@@ -92,7 +114,7 @@ class TelemetryDisplay extends StatelessWidget {
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             _buildSectionHeader('Velocity (m/s)'),
-                                            _buildVelocityData(),
+                                            _buildVelocityData(isDesktop),
                                           ],
                                         ),
                                       ),
@@ -103,10 +125,18 @@ class TelemetryDisplay extends StatelessWidget {
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             _buildSectionHeader('Rotation'),
-                                            _buildRotationData(),
+                                            _buildRotationData(isDesktop),
                                           ],
                                         ),
                                       ),
+                                    ],
+                                  ) : Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      _buildSectionHeader('Velocity (m/s)'),
+                                      _buildVelocityData(isDesktop),
+                                      _buildSectionHeader('Rotation'),
+                                      _buildRotationData(isDesktop),
                                     ],
                                   ),
                                 ],
@@ -121,11 +151,14 @@ class TelemetryDisplay extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(bool isDesktop) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(8),
-      color: Colors.blue,
+      padding: EdgeInsets.all(isDesktop ? 12 : 8),
+      decoration: BoxDecoration(
+        color: Colors.blue,
+        borderRadius: BorderRadius.circular(isDesktop ? 8 : 4),
+      ),
       child: Row(
         children: [
           Expanded(
@@ -167,16 +200,18 @@ class TelemetryDisplay extends StatelessWidget {
     );
   }
 
-  Widget _buildTrackData() {
+  Widget _buildTrackData(BuildContext context, bool isDesktop) {
+    final isWide = MediaQuery.of(context).size.width > 500;
     return Container(
       padding: EdgeInsets.all(8),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(isDesktop ? 8 : 4),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+                    isWide ? Row(
             children: [
               Expanded(
                 flex: 2,
@@ -191,9 +226,21 @@ class TelemetryDisplay extends StatelessWidget {
                 child: Text('Position: ${telemetry?.currentPos ?? 0}/${telemetry?.totalPositions ?? 0}'),
               ),
             ],
+          ) : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Time on track: ${telemetry != null ? (telemetry!.timeOfDay / 1000).toStringAsFixed(0) : '0'}s'),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Expanded(child: Text('Laps: ${telemetry?.currentLap ?? 0}/${telemetry?.totalLaps ?? 0}')),
+                  Expanded(child: Text('Position: ${telemetry?.currentPos ?? 0}/${telemetry?.totalPositions ?? 0}')),
+                ],
+              ),
+            ],
           ),
           SizedBox(height: 8),
-          Row(
+                    isWide ? Row(
             children: [
               Expanded(
                 flex: 1,
@@ -208,22 +255,33 @@ class TelemetryDisplay extends StatelessWidget {
                 child: Text('Last Lap Time: ${telemetry != null ? telemetry!.formatLapTime(telemetry!.lastLapTime) : ''}'),
               ),
             ],
+          ) : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Best Lap: ${telemetry != null ? telemetry!.formatLapTime(telemetry!.bestLapTime) : ''}'),
+              const SizedBox(height: 4),
+              Text('Current Lap: ${telemetry != null ? telemetry!.formatCurLapTime(telemetry!.curLapTime) : ''}'),
+              const SizedBox(height: 4),
+              Text('Last Lap: ${telemetry != null ? telemetry!.formatLapTime(telemetry!.lastLapTime) : ''}'),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCarData() {
+  Widget _buildCarData(BuildContext context, bool isDesktop) {
+    final isWide = MediaQuery.of(context).size.width > 650;
     return Container(
       padding: EdgeInsets.all(8),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(isDesktop ? 8 : 4),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          isWide ? Row(
             children: [
               Expanded(
                 flex: 1,
@@ -242,9 +300,26 @@ class TelemetryDisplay extends StatelessWidget {
                 child: Text('Speed: ${(telemetry?.speed ?? 0).toStringAsFixed(1)} kph'),
               ),
             ],
+          ) : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(child: Text('Car ID: ${telemetry?.carId ?? 0}')),
+                  Expanded(child: Text('Throttle: ${(telemetry?.throttle ?? 0).toStringAsFixed(1)}%')),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Expanded(child: Text('RPM: ${(telemetry?.rpm ?? 0).toStringAsFixed(0)} rpm')),
+                  Expanded(child: Text('Speed: ${(telemetry?.speed ?? 0).toStringAsFixed(1)} kph')),
+                ],
+              ),
+            ],
           ),
           SizedBox(height: 8),
-          Row(
+          isWide ? Row(
             children: [
               Expanded(
                 flex: 1,
@@ -261,6 +336,23 @@ class TelemetryDisplay extends StatelessWidget {
               Expanded(
                 flex: 1,
                 child: Text('Rev Warning: ${(telemetry?.rpmWarning ?? 0).toStringAsFixed(0)} rpm'),
+              ),
+            ],
+          ) : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(child: Text('Brake: ${(telemetry?.brake ?? 0).toStringAsFixed(1)}%')),
+                  Expanded(child: Text('Gear: ${_formatGear(telemetry?.currentGear ?? 0)} (${telemetry?.suggestedGear ?? 0})')),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Expanded(child: Text('Boost: ${(telemetry?.boost ?? 0).toStringAsFixed(2)} kPa')),
+                  Expanded(child: Text('Rev Warning: ${(telemetry?.rpmWarning ?? 0).toStringAsFixed(0)} rpm')),
+                ],
               ),
             ],
           ),
@@ -328,16 +420,18 @@ class TelemetryDisplay extends StatelessWidget {
     );
   }
 
-  Widget _buildTireData() {
+  Widget _buildTireData(BuildContext context, bool isDesktop) {
+    final isWide = MediaQuery.of(context).size.width > 700;
     return Container(
       padding: EdgeInsets.all(8),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(isDesktop ? 8 : 4),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          isWide ? Row(
             children: [
               Expanded(
                 flex: 1,
@@ -360,9 +454,27 @@ class TelemetryDisplay extends StatelessWidget {
                 child: Text('${telemetry?.tireSlipRatioFL ?? '0'}'),
               ),
             ],
+          ) : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(child: Text('FL: ${(telemetry?.tireTempFL ?? 0).toStringAsFixed(1)} °C')),
+                  Expanded(child: Text('FR: ${(telemetry?.tireTempFR ?? 0).toStringAsFixed(1)} °C')),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Expanded(child: Text('ø: ${(telemetry?.tireDiamFL ?? 0).toStringAsFixed(1)}/${(telemetry?.tireDiamFR ?? 0).toStringAsFixed(1)} cm')),
+                  Expanded(child: Text('${telemetry?.tireSpeedFL.toStringAsFixed(1) ?? '0'} kph')),
+                ],
+              ),
+              Text('Slip: ${telemetry?.tireSlipRatioFL ?? '0'}'),
+            ],
           ),
           SizedBox(height: 4),
-          Row(
+          isWide ? Row(
             children: [
               Expanded(
                 flex: 1,
@@ -381,9 +493,13 @@ class TelemetryDisplay extends StatelessWidget {
                 child: Container(), // Empty for layout
               ),
             ],
-          ),
+          ) : !isWide ? Row(
+            children: [
+              Expanded(child: Text('Slip FL/FR: ${telemetry?.tireSlipRatioFL ?? '0'}/${telemetry?.tireSlipRatioFR ?? '0'}')),
+            ],
+          ) : Container(),
           SizedBox(height: 8),
-          Row(
+          isWide ? Row(
             children: [
               Expanded(
                 flex: 1,
@@ -406,9 +522,27 @@ class TelemetryDisplay extends StatelessWidget {
                 child: Text('${telemetry?.tireSlipRatioRL ?? '0'}'),
               ),
             ],
+          ) : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(child: Text('RL: ${(telemetry?.tireTempRL ?? 0).toStringAsFixed(1)} °C')),
+                  Expanded(child: Text('RR: ${(telemetry?.tireTempRR ?? 0).toStringAsFixed(1)} °C')),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Expanded(child: Text('ø: ${(telemetry?.tireDiamRL ?? 0).toStringAsFixed(1)}/${(telemetry?.tireDiamRR ?? 0).toStringAsFixed(1)} cm')),
+                  Expanded(child: Text('${telemetry?.tireSpeedRL.toStringAsFixed(1) ?? '0'} kph')),
+                ],
+              ),
+              Text('Slip: ${telemetry?.tireSlipRatioRL ?? '0'}'),
+            ],
           ),
           SizedBox(height: 4),
-          Row(
+          isWide ? Row(
             children: [
               Expanded(
                 flex: 1,
@@ -427,19 +561,52 @@ class TelemetryDisplay extends StatelessWidget {
                 child: Container(), // Empty for layout
               ),
             ],
-          ),
+          ) : !isWide ? Row(
+            children: [
+              Expanded(child: Text('Slip RL/RR: ${telemetry?.tireSlipRatioRL ?? '0'}/${telemetry?.tireSlipRatioRR ?? '0'}')),
+            ],
+          ) : Container(),
         ],
       ),
     );
   }
 
-  Widget _buildGearingData() {
+  Widget _buildGearingData(BuildContext context, bool isDesktop) {
+    final isNarrow = MediaQuery.of(context).size.width < 500;
     return Container(
       padding: EdgeInsets.all(8),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(isDesktop ? 8 : 4),
       ),
-      child: Column(
+      child: isNarrow ? Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(child: Text('1: ${(telemetry?.gear1 ?? 0).toStringAsFixed(3)}')),
+              Expanded(child: Text('2: ${(telemetry?.gear2 ?? 0).toStringAsFixed(3)}')),
+              Expanded(child: Text('3: ${(telemetry?.gear3 ?? 0).toStringAsFixed(3)}')),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              Expanded(child: Text('4: ${(telemetry?.gear4 ?? 0).toStringAsFixed(3)}')),
+              Expanded(child: Text('5: ${(telemetry?.gear5 ?? 0).toStringAsFixed(3)}')),
+              Expanded(child: Text('6: ${(telemetry?.gear6 ?? 0).toStringAsFixed(3)}')),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              Expanded(child: Text('7: ${(telemetry?.gear7 ?? 0).toStringAsFixed(3)}')),
+              Expanded(child: Text('8: ${(telemetry?.gear8 ?? 0).toStringAsFixed(3)}')),
+              Expanded(child: Text('?: ${(telemetry?.gearUnknown ?? 0).toStringAsFixed(3)}')),
+            ],
+          ),
+        ],
+      ) : Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('1st: ${(telemetry?.gear1 ?? 0).toStringAsFixed(3)}'),
@@ -456,11 +623,12 @@ class TelemetryDisplay extends StatelessWidget {
     );
   }
 
-  Widget _buildPositioningData() {
+  Widget _buildPositioningData(bool isDesktop) {
     return Container(
       padding: EdgeInsets.all(8),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(isDesktop ? 8 : 4),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -473,11 +641,12 @@ class TelemetryDisplay extends StatelessWidget {
     );
   }
 
-  Widget _buildVelocityData() {
+  Widget _buildVelocityData(bool isDesktop) {
     return Container(
       padding: EdgeInsets.all(8),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(isDesktop ? 8 : 4),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -490,11 +659,12 @@ class TelemetryDisplay extends StatelessWidget {
     );
   }
 
-  Widget _buildRotationData() {
+  Widget _buildRotationData(bool isDesktop) {
     return Container(
       padding: EdgeInsets.all(8),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(isDesktop ? 8 : 4),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
