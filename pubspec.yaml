@@ -52,9 +52,13 @@ dependencies:
 
   # For caching images
   cached_network_image: ^3.3.1
+  flutter_svg: ^2.2.3
 
   # For handling URLs
   url_launcher: ^6.2.4
+  extended_image: ^10.0.1
+  flutter_avif: ^3.1.0
+
 
 dev_dependencies:
   flutter_test:

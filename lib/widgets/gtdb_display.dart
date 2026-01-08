@@ -1,31 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
-import '../models/gt7info_data.dart';
-import '../services/gt7info_service.dart';
-import 'car_grid_item.dart';
+import '../models/gtdb_data.dart';
+import '../models/gt7info_data.dart'; // Needed for CarData compatibility
+import '../services/gtdb_service.dart';
+import '../widgets/car_grid_item.dart';
 
-class GT7InfoDisplay extends StatefulWidget {
-  const GT7InfoDisplay({super.key});
+class GTDBDisplay extends StatefulWidget {
+  const GTDBDisplay({super.key});
 
   @override
-  State<GT7InfoDisplay> createState() => _GT7InfoDisplayState();
+  State<GTDBDisplay> createState() => _GTDBDisplayState();
 }
 
-class _GT7InfoDisplayState extends State<GT7InfoDisplay> with SingleTickerProviderStateMixin {
+class _GTDBDisplayState extends State<GTDBDisplay> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    
-    // Fetch GT7Info data when widget initializes
+
+    // Fetch GTDB data when widget initializes
     Future.microtask(() {
-      context.read<GT7InfoService>().fetchGT7InfoData();
+      context.read<GTDBService>().fetchGTDBData();
     });
   }
-  
+
   @override
   void dispose() {
     _tabController.dispose();
@@ -34,7 +34,7 @@ class _GT7InfoDisplayState extends State<GT7InfoDisplay> with SingleTickerProvid
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<GT7InfoService>(
+    return Consumer<GTDBService>(
       builder: (context, service, child) {
         if (service.isLoading) {
           return const Center(
@@ -50,7 +50,7 @@ class _GT7InfoDisplayState extends State<GT7InfoDisplay> with SingleTickerProvid
                 const Icon(Icons.error_outline, color: Colors.red, size: 48),
                 const SizedBox(height: 16),
                 Text(
-                  'Error Loading GT7Info Data',
+                  'Error Loading GTDB Data',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 8),
@@ -60,7 +60,7 @@ class _GT7InfoDisplayState extends State<GT7InfoDisplay> with SingleTickerProvid
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton.icon(
-                  onPressed: () => service.fetchGT7InfoData(forceRefresh: true),
+                  onPressed: () => service.fetchGTDBData(forceRefresh: true),
                   icon: const Icon(Icons.refresh),
                   label: const Text('Retry'),
                 ),
@@ -74,10 +74,10 @@ class _GT7InfoDisplayState extends State<GT7InfoDisplay> with SingleTickerProvid
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('No GT7Info data available'),
+                const Text('No GTDB data available'),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: () => service.fetchGT7InfoData(forceRefresh: true),
+                  onPressed: () => service.fetchGTDBData(forceRefresh: true),
                   child: const Text('Load Data'),
                 ),
               ],
@@ -103,15 +103,11 @@ class _GT7InfoDisplayState extends State<GT7InfoDisplay> with SingleTickerProvid
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
-                              'GT7 Dealership Info',
+                              'GTDB Dealership Info',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
-                            ),
-                            Text(
-                              'Game Update: ${data.updateTimestamp}',
-                              style: const TextStyle(color: Colors.grey),
                             ),
                             if (lastUpdated != null)
                               Text(
@@ -124,7 +120,7 @@ class _GT7InfoDisplayState extends State<GT7InfoDisplay> with SingleTickerProvid
                       IconButton(
                         icon: const Icon(Icons.refresh),
                         tooltip: 'Refresh data',
-                        onPressed: () => service.fetchGT7InfoData(forceRefresh: true),
+                        onPressed: () => service.fetchGTDBData(forceRefresh: true),
                       ),
                     ],
                   ),
@@ -147,10 +143,10 @@ class _GT7InfoDisplayState extends State<GT7InfoDisplay> with SingleTickerProvid
                 controller: _tabController,
                 children: [
                   // Used cars tab
-                  _buildCarListView(data.used.cars, 'Auto+: Used Cars'),
-                  
+                  _buildCarListView(data.usedCars, 'GTDB Used Cars'),
+
                   // Legendary cars tab
-                  _buildCarListView(data.legend.cars, 'Hagerty Collection: Legendary Cars'),
+                  _buildCarListView(data.legendCars, 'GTDB Legendary Cars'),
                 ],
               ),
             ),
@@ -160,7 +156,7 @@ class _GT7InfoDisplayState extends State<GT7InfoDisplay> with SingleTickerProvid
     );
   }
 
-  Widget _buildCarListView(List<CarData> cars, String title) {
+  Widget _buildCarListView(List<GTDBCar> cars, String title) {
     return Column(
       children: [
         Padding(
@@ -178,7 +174,7 @@ class _GT7InfoDisplayState extends State<GT7InfoDisplay> with SingleTickerProvid
             builder: (context, constraints) {
               int crossAxisCount;
               double itemWidth = 300.0; // Approximate width for each item
-
+              
               // For used car dealership, return 4-6 items per row depending on screen size
               if (title.contains('Used Cars')) {
                 if (constraints.maxWidth < 600) {
@@ -186,9 +182,9 @@ class _GT7InfoDisplayState extends State<GT7InfoDisplay> with SingleTickerProvid
                 } else if (constraints.maxWidth < 800) {
                   crossAxisCount = 2; // 2 items per row on medium screens
                 } else if (constraints.maxWidth < 1200) {
-                  crossAxisCount = 3; // 4 items per row on larger screens
+                  crossAxisCount = 4; // 4 items per row on larger screens
                 } else {
-                  crossAxisCount = 4; // 6 items per row on very large screens
+                  crossAxisCount = 6; // 6 items per row on very large screens
                 }
               } else {
                 // For legendary cars, use a consistent grid
@@ -200,7 +196,7 @@ class _GT7InfoDisplayState extends State<GT7InfoDisplay> with SingleTickerProvid
                   crossAxisCount = 3; // 3 items per row on larger screens
                 }
               }
-
+              
               return GridView.builder(
                 padding: const EdgeInsets.only(bottom: 16),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -211,7 +207,7 @@ class _GT7InfoDisplayState extends State<GT7InfoDisplay> with SingleTickerProvid
                 ),
                 itemCount: cars.length,
                 itemBuilder: (context, index) {
-                  return CarGridItem(car: cars[index]);
+                  return CarGridItem(car: _convertToCarData(cars[index])); // Convert GTDBCar to CarData for compatibility
                 },
               );
             },
@@ -221,8 +217,12 @@ class _GT7InfoDisplayState extends State<GT7InfoDisplay> with SingleTickerProvid
     );
   }
 
+  // Convert GTDBCar to CarData for compatibility with CarGridItem widget
+  CarData _convertToCarData(GTDBCar gtdbCar) {
+    return gtdbCar.toCarData();
+  }
+
   String _formatDateTime(DateTime dateTime) {
     return '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
-
 }

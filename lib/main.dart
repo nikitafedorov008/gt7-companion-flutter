@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:gt7_telemetry_flutter/widgets/gtdb_display.dart';
 import 'package:provider/provider.dart';
+import 'repositories/unified_car_repository.dart';
 import 'services/telemetry_service.dart';
 import 'services/gt7info_service.dart';
+import 'services/gtdb_service.dart';
 import 'widgets/telemetry_display.dart';
 import 'widgets/playstation_scanner_dialog.dart';
-import 'widgets/gt7info_display.dart';
+import 'widgets/unified_car_display.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,6 +22,16 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => TelemetryService()),
         ChangeNotifierProvider(create: (context) => GT7InfoService()),
+        ChangeNotifierProvider(create: (context) => GTDBService()),
+        ChangeNotifierProxyProvider2<GT7InfoService, GTDBService, UnifiedCarRepository>(
+          create: (context) => UnifiedCarRepository(
+            Provider.of<GT7InfoService>(context, listen: false),
+            Provider.of<GTDBService>(context, listen: false),
+          ),
+          update: (context, gt7InfoService, gtdbService, repository) {
+            return repository ?? UnifiedCarRepository(gt7InfoService, gtdbService);
+          },
+        ),
       ],
       child: MaterialApp(
         title: 'GT7 Telemetry Flutter',
@@ -222,7 +235,7 @@ class _TelemetryScreenState extends State<TelemetryScreen> with SingleTickerProv
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('GT7 Telemetry Flutter'),
+        title: const Text('GT7 Companion Flutter'),
         bottom: TabBar(
           controller: _mainTabController,
           tabs: const [
@@ -322,7 +335,9 @@ class _TelemetryScreenState extends State<TelemetryScreen> with SingleTickerProv
           ),
           
           // GT7 Info Tab
-          const GT7InfoDisplay(),
+          //const GT7InfoDisplay(),
+          //const GTDBDisplay(),
+          UnifiedCarDisplay(),
         ],
       ),
     );
