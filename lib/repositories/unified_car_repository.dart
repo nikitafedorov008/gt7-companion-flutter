@@ -45,29 +45,46 @@ class UnifiedCarRepository extends ChangeNotifier {
         combinedCars[unifiedId] = car;
       }
 
-      // Add GTDB cars, potentially updating existing entries with more information
+      // Add GTDB cars
       for (final car in gtdbCars) {
         final unifiedId = _generateUnifiedCarId(car.id);
 
-        // Проверяем, есть ли уже GT7Info legendary car с тем же именем
+        // Проверяем, есть ли уже GT7Info car с тем же именем
         UnifiedCarData? matchingCarByname = _findMatchingCarByName(car, gt7InfoCars);
 
-        if (matchingCarByname != null) {
-          // Если нашли совпадение по имени, используем ID от GT7Info для объединения
-          final gt7InfoUnifiedId = _generateUnifiedCarId(matchingCarByname.id);
-          if (combinedCars.containsKey(gt7InfoUnifiedId)) {
-            // Объединяем информацию
-            final existingCar = combinedCars[gt7InfoUnifiedId]!;
-            combinedCars[gt7InfoUnifiedId] = _mergeCarData(existingCar, car);
-          } else {
-            combinedCars[gt7InfoUnifiedId] = car;
+        // Для легендарных автомобилей из GTDB - добавляем только если есть совпадение в GT7Info
+        if (car.source?.contains('gtdb_legend') ?? false) {
+          if (matchingCarByname != null) {
+            // Если нашли совпадение по имени, используем ID от GT7Info для объединения
+            final gt7InfoUnifiedId = _generateUnifiedCarId(matchingCarByname.id);
+            if (combinedCars.containsKey(gt7InfoUnifiedId)) {
+              // Объединяем информацию
+              final existingCar = combinedCars[gt7InfoUnifiedId]!;
+              combinedCars[gt7InfoUnifiedId] = _mergeCarData(existingCar, car);
+            } else {
+              combinedCars[gt7InfoUnifiedId] = car;
+            }
           }
-        } else if (combinedCars.containsKey(unifiedId)) {
-          // If car exists from both sources with same ID, merge information
-          final existingCar = combinedCars[unifiedId]!;
-          combinedCars[unifiedId] = _mergeCarData(existingCar, car);
+          // Если нет совпадения в GT7Info, пропускаем этот легендарный автомобиль
         } else {
-          combinedCars[unifiedId] = car;
+          // Для used cars используем обычную логику - добавляем если есть в GTDB
+          if (matchingCarByname != null) {
+            // Если нашли совпадение по имени, используем ID от GT7Info для объединения
+            final gt7InfoUnifiedId = _generateUnifiedCarId(matchingCarByname.id);
+            if (combinedCars.containsKey(gt7InfoUnifiedId)) {
+              // Объединяем информацию
+              final existingCar = combinedCars[gt7InfoUnifiedId]!;
+              combinedCars[gt7InfoUnifiedId] = _mergeCarData(existingCar, car);
+            } else {
+              combinedCars[gt7InfoUnifiedId] = car;
+            }
+          } else if (combinedCars.containsKey(unifiedId)) {
+            // If car exists from both sources with same ID, merge information
+            final existingCar = combinedCars[unifiedId]!;
+            combinedCars[unifiedId] = _mergeCarData(existingCar, car);
+          } else {
+            combinedCars[unifiedId] = car;
+          }
         }
       }
 

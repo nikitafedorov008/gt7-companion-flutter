@@ -194,14 +194,67 @@ class UnifiedCarCardItem extends StatelessWidget {
       child: const Icon(Icons.car_repair, size: 16, color: Colors.grey),
     );
 
+    // Standard fallback image in case of errors
+    Widget fallbackImage = Container(
+      width: width,
+      height: height,
+      color: Colors.grey[200],
+      child: const Icon(Icons.image_not_supported_outlined, size: 24, color: Colors.grey),
+    );
+
     if (imageUrl.contains('imagedelivery.net')) {
-      return AvifImage.network(
-        imageUrl,
-        width: width,
-        height: height,
+      // Для изображений из GTDB показываем стандартное изображение как placeholder,
+      // а затем заменяем на изображение из GTDB если оно загрузится
+      String gt7StandardUrl = 'https://www.gran-turismo.com/common/dist/gt7/carlist/car_thumbnails/car${car.id}.png';
+
+      // Сначала загружаем стандартное изображение
+      return ExtendedImage.network(
+        gt7StandardUrl, // Сначала показываем стандартное изображение
+        // width: width,
+        // height: height,
         fit: fit,
-        loadingBuilder: (context, child, loadingProgress) => loadingProgress == null ? child : placeholder,
-        errorBuilder: (context, error, stackTrace) => placeholder,
+        cache: true,
+        loadStateChanged: (ExtendedImageState standardState) {
+          // Загружаем изображение из GTDB поверх стандартного
+          Widget gtdbImage = AvifImage.network(
+            imageUrl, // Это изображение из GTDB
+            // width: width,
+            // height: height,
+            fit: BoxFit.contain,
+            loadingBuilder: (context, child, loadingProgress) =>
+              loadingProgress == null ? child : Container(), // Не показываем placeholder для GTDB
+            errorBuilder: (context, error, stackTrace) => Container(), // Не показываем ошибку GTDB
+          );
+
+          if (standardState.extendedImageLoadState == LoadState.loading) {
+            // Если стандартное изображение еще грузится, показываем placeholder
+            return Stack(
+              alignment: Alignment.center,
+              children: [
+                placeholder, // placeholder пока грузится стандартное изображение
+                gtdbImage, // попутно грузим изображение из GTDB
+              ],
+            );
+          } else if (standardState.extendedImageLoadState == LoadState.completed) {
+            // Если стандартное изображение загрузилось, показываем его с возможностью замены на GTDB
+            return Stack(
+              alignment: Alignment.center,
+              children: [
+                standardState.completedWidget, // стандартное изображение
+                gtdbImage, // поверх него изображение из GTDB, если оно загрузится
+              ],
+            );
+          } else {
+            // В случае ошибки стандартного изображения показываем fallback
+            return Stack(
+              alignment: Alignment.center,
+              children: [
+                fallbackImage, // fallback при ошибке
+                gtdbImage, // попутно пробуем загрузить изображение из GTDB
+              ],
+            );
+          }
+        },
       );
     } else {
       return ExtendedImage.network(
@@ -213,7 +266,9 @@ class UnifiedCarCardItem extends StatelessWidget {
         loadStateChanged: (ExtendedImageState state) {
           if (state.extendedImageLoadState == LoadState.loading ||
               state.extendedImageLoadState == LoadState.failed) {
-            return placeholder;
+            return state.extendedImageLoadState == LoadState.loading
+                ? placeholder
+                : fallbackImage;
           }
           return null;
         },
