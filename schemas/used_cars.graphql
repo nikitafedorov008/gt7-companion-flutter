@@ -1,0 +1,15 @@
+query AllUsedCars {
+    gt_car(where: {details: {_has_key: "in_ucd"}}, order_by: {updated_at: desc}) {
+        id
+        details
+        manufacturer {
+            name
+            __typename
+        }
+        name
+        short_name
+        slug
+        updated_at
+        __typename
+    }
+}

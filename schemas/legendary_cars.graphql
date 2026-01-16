@@ -1,0 +1,17 @@
+query AllLegendaryCars {
+    gt_car(where: {details: {_has_key: "in_legend"}}, order_by: {updated_at: desc}) {
+        id
+        sort
+        state
+        price
+        image
+        frontImage
+        manufacturer {
+            name
+        }
+        name
+        short_name
+        slug
+        updated_at
+    }
+}

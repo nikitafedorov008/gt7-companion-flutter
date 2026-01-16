@@ -1,11 +1,13 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:graphql/client.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../models/used_car.dart';
 import '../models/legendary_car.dart';
-import 'graphql_queries.dart';
 
 class GTDBService extends ChangeNotifier {
-  late GraphQLClient _client;
+  late GraphQLClient _usedCarsClient;
 
   List<UsedCar> _usedCars = [];
   List<LegendaryCar> _legendaryCars = [];
@@ -20,15 +22,18 @@ class GTDBService extends ChangeNotifier {
   DateTime? get lastUpdated => _lastUpdated;
 
   GTDBService() {
-    // Настройка клиента GraphQL
-    final HttpLink httpLink = HttpLink(
+    // Настройка клиента GraphQL для used cars
+    final HttpLink usedCarsHttpLink = HttpLink(
       'https://api.playstationdb.com/graphql',
     );
 
-    _client = GraphQLClient(
+    _usedCarsClient = GraphQLClient(
       cache: GraphQLCache(),
-      link: httpLink,
+      link: usedCarsHttpLink,
     );
+
+    // Для legendary cars используем другой клиент, так как API требует GET-запросы
+    // Мы будем использовать http-клиент напрямую для этого случая
   }
 
   Future<void> fetchGTDBData({bool forceRefresh = false}) async {
@@ -54,16 +59,10 @@ class GTDBService extends ChangeNotifier {
         }
       }
 
-      if (legendaryCarsResult.hasException) {
-        _errorMessage = _errorMessage != null
-            ? '$_errorMessage and Error loading legendary cars: ${legendaryCarsResult.exception}'
-            : 'Error loading legendary cars: ${legendaryCarsResult.exception}';
-        debugPrint('GraphQL Error (Legendary Cars): ${legendaryCarsResult.exception}');
-      } else {
-        final legendaryCarList = legendaryCarsResult.data?['gt_car'] as List?;
-        if (legendaryCarList != null) {
-          _legendaryCars = legendaryCarList.map((car) => LegendaryCar.fromJson(car)).toList();
-        }
+      // Обработка результатов для легендарных автомобилей
+      final legendaryCarList = legendaryCarsResult['data']?['gt_car'] as List?;
+      if (legendaryCarList != null) {
+        _legendaryCars = legendaryCarList.map((car) => LegendaryCar.fromJson(car)).toList();
       }
 
       _lastUpdated = DateTime.now();
@@ -77,23 +76,33 @@ class GTDBService extends ChangeNotifier {
 
   // Fetch used cars data
   Future<QueryResult> _fetchUsedCars() async {
+    final String usedCarsQuery = await rootBundle.loadString('schemas/used_cars.graphql');
+
     final options = QueryOptions(
-      document: gql(GraphqlQueries.getAllUsedCars),
+      document: gql(usedCarsQuery),
       variables: {},
     );
 
-    final result = await _client.query(options);
+    final result = await _usedCarsClient.query(options);
     return result;
   }
 
-  // Fetch legendary cars data
-  Future<QueryResult> _fetchLegendaryCars() async {
-    final options = QueryOptions(
-      document: gql(GraphqlQueries.getAllLegendaryCars),
-      variables: {},
+  // Fetch legendary cars data using HTTP client (GET request)
+  Future<Map<String, dynamic>> _fetchLegendaryCars() async {
+    final response = await http.get(
+      Uri.parse('https://gtdb.io/api/graphql_middleware/query/LegendCarsDealer'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
     );
 
-    final result = await _client.query(options);
-    return result;
+    if (response.statusCode == 200) {
+      // Parse the JSON response
+      final Map<String, dynamic> data = json.decode(response.body);
+      // Create a mock QueryResult-like response
+      return {'data': data['data']};
+    } else {
+      throw Exception('Failed to load legendary cars: ${response.statusCode}');
+    }
   }
 }

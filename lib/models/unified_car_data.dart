@@ -67,27 +67,28 @@ class UnifiedCarData {
 
   // NEW: Use imageUrl if available, fallback to GT7 image format
   String get carImageUrl {
-    // if (imageUrl != null) return imageUrl!; // imageUrl уже содержит правильный AVIF URL
-    // if (source?.contains('gtdb') == true) {
-    //   if (imageId != null && imageId!.isNotEmpty) {
-    //     // Check if imageId is already a full URL or just an ID
-    //     if (imageId!.startsWith('http')) {
-    //       return imageId!;
-    //     } else {
-    //       return 'https://imagedelivery.net/nkaANmEhdg2ZZ4vhQHp4TQ/${imageId}/public';
-    //     }
-    //   } else if (frontImageId != null && frontImageId!.isNotEmpty) {
-    //     // Check if frontImageId is already a full URL or just an ID
-    //     if (frontImageId!.startsWith('http')) {
-    //       return frontImageId!;
-    //     } else {
-    //       return 'https://imagedelivery.net/nkaANmEhdg2ZZ4vhQHp4TQ/${frontImageId}/public';
-    //     }
-    //   }
-    // }
-    if (imageId != null) {
-      return 'https://imagedelivery.net/nkaANmEhdg2ZZ4vhQHp4TQ/${imageId}/public';
+    // First priority: use imageUrl if available
+    if (imageUrl != null) return imageUrl!;
+
+    // Second priority: for GTDB cars, use frontImageId if available (especially for legendary cars)
+    if (source?.contains('gtdb') == true) {
+      if (frontImageId != null && frontImageId!.isNotEmpty) {
+        // Check if frontImageId is already a full URL or just an ID
+        if (frontImageId!.startsWith('http')) {
+          return frontImageId!;
+        } else {
+          return 'https://imagedelivery.net/nkaANmEhdg2ZZ4vhQHp4TQ/${frontImageId}/public';
+        }
+      } else if (imageId != null && imageId!.isNotEmpty) {
+        // Fallback to imageId if frontImageId is not available
+        if (imageId!.startsWith('http')) {
+          return imageId!;
+        } else {
+          return 'https://imagedelivery.net/nkaANmEhdg2ZZ4vhQHp4TQ/${imageId}/public';
+        }
+      }
     }
+
     // Fallback to GT7Info format
     return 'https://www.gran-turismo.com/common/dist/gt7/carlist/car_thumbnails/car${id}.png';
   }

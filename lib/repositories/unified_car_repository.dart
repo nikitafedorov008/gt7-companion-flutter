@@ -49,8 +49,21 @@ class UnifiedCarRepository extends ChangeNotifier {
       for (final car in gtdbCars) {
         final unifiedId = _generateUnifiedCarId(car.id);
 
-        if (combinedCars.containsKey(unifiedId)) {
-          // If car exists from both sources, merge information
+        // Проверяем, есть ли уже GT7Info legendary car с тем же именем
+        UnifiedCarData? matchingCarByname = _findMatchingCarByName(car, gt7InfoCars);
+
+        if (matchingCarByname != null) {
+          // Если нашли совпадение по имени, используем ID от GT7Info для объединения
+          final gt7InfoUnifiedId = _generateUnifiedCarId(matchingCarByname.id);
+          if (combinedCars.containsKey(gt7InfoUnifiedId)) {
+            // Объединяем информацию
+            final existingCar = combinedCars[gt7InfoUnifiedId]!;
+            combinedCars[gt7InfoUnifiedId] = _mergeCarData(existingCar, car);
+          } else {
+            combinedCars[gt7InfoUnifiedId] = car;
+          }
+        } else if (combinedCars.containsKey(unifiedId)) {
+          // If car exists from both sources with same ID, merge information
           final existingCar = combinedCars[unifiedId]!;
           combinedCars[unifiedId] = _mergeCarData(existingCar, car);
         } else {
@@ -162,9 +175,8 @@ class UnifiedCarRepository extends ChangeNotifier {
   UnifiedCarData _convertGTDBCarToUnifiedLegendaryCar(LegendaryCar car, String source) {
     String? imageUrl;
     if (car.frontImage != null) {
+      // Для legendary car всегда используем frontImage, как указано в требованиях
       imageUrl = 'https://imagedelivery.net/nkaANmEhdg2ZZ4vhQHp4TQ/${car.frontImage}/public';
-    } else if (car.image != null) {
-      imageUrl = 'https://imagedelivery.net/nkaANmEhdg2ZZ4vhQHp4TQ/${car.image}/public';
     }
 
     return UnifiedCarData(
@@ -289,6 +301,49 @@ class UnifiedCarRepository extends ChangeNotifier {
   bool _isMoreCompleteName(String newName, String existingName) {
     // Простая эвристика: если новое имя длиннее и содержит существующее, то оно более полное
     return newName.length > existingName.length && newName.toLowerCase().contains(existingName.toLowerCase());
+  }
+
+  /// Finds a matching car from GT7Info cars based on name comparison
+  /// Used for legendary cars where IDs might differ but names should match
+  UnifiedCarData? _findMatchingCarByName(UnifiedCarData gtdbCar, List<UnifiedCarData> gt7InfoCars) {
+    // Проверяем, является ли GTDB автомобиль legendary car
+    bool isGTDBLegendary = gtdbCar.source?.contains('gtdb_legend') ?? false;
+
+    if (!isGTDBLegendary) {
+      // Для used cars используем обычное сопоставление по ID
+      return null;
+    }
+
+    // Для legendary cars ищем совпадение по имени
+    for (final gt7InfoCar in gt7InfoCars) {
+      bool isGT7InfoLegendary = gt7InfoCar.source?.contains('gt7info_legend') ?? false;
+
+      if (isGT7InfoLegendary) {
+        // Сравниваем имя из GT7Info (name) с именем из GTDB (shortName или name)
+        String gt7InfoName = gt7InfoCar.name.toLowerCase().trim();
+
+        // Используем полное имя из GTDB, но убираем из него название производителя
+        String gtdbFullName = gtdbCar.name.toLowerCase().trim();
+        String gtdbManufacturer = gtdbCar.manufacturer.toLowerCase().trim();
+
+        // Убираем название производителя из полного имени
+        String gtdbNameWithoutManufacturer = gtdbFullName.replaceFirst(RegExp('^${RegExp.escape(gtdbManufacturer)}\\s+'), '').trim();
+
+        // Если после удаления производителя имя пустое, используем shortName
+        String gtdbName = gtdbNameWithoutManufacturer.isNotEmpty
+            ? gtdbNameWithoutManufacturer
+            : (gtdbCar.shortName.isNotEmpty ? gtdbCar.shortName.toLowerCase().trim() : gtdbFullName);
+
+        // Проверяем на точное совпадение или частичное совпадение
+        if (gt7InfoName == gtdbName ||
+            gt7InfoName.contains(gtdbName) ||
+            gtdbName.contains(gt7InfoName)) {
+          return gt7InfoCar;
+        }
+      }
+    }
+
+    return null;
   }
 
   List<UnifiedCarData> getCarsBySource(String source) {
