@@ -27,74 +27,88 @@ class _LegendaryCarDisplayState extends State<LegendaryCarDisplay> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<UnifiedCarRepository>(
-      builder: (context, repository, child) {
-        if (repository.isLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    return Material(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              // Colors.black12,
+              // Colors.black26,
+              // Colors.black38,
+              // Colors.black45,
+              // Colors.black54,
+              Colors.black.withAlpha(160),
+              Colors.black87,
+              Colors.black,
+            ],
+          ),
+        ),
+        child: Consumer<UnifiedCarRepository>(
+          builder: (context, repository, child) {
+            if (repository.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-        if (repository.errorMessage != null) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline, color: Colors.red, size: 48),
-                const SizedBox(height: 16),
-                Text('Error Loading Legend Car Data', style: Theme.of(context).textTheme.titleLarge),
-                const SizedBox(height: 8),
-                Text(repository.errorMessage!, textAlign: TextAlign.center),
-                const SizedBox(height: 24),
-                ElevatedButton.icon(
-                  onPressed: () => repository.fetchAllCars(forceRefresh: true),
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Retry'),
-                ),
-              ],
-            ),
-          );
-        }
-
-        final legendCars = repository.getLegendCars();
-
-        return Column(
-          children: [
-            // Header: AUTO-H | LEGENDARY CAR DEALERSHIP
-            Padding(
-              padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
-              child: IntrinsicHeight(
-                child: Row(
+            if (repository.errorMessage != null) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SvgPicture.asset(
-                      'assets/images/ucd-auto.svg',
-                      width: 80,
-                      height: 24,
-                    ),
-                    VerticalDivider(
-                      thickness: 2,
-                      color: Colors.black87,
-                    ),
-                    const Text(
-                      'LEGENDARY CAR DEALERSHIP',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
+                    const Icon(Icons.error_outline, color: Colors.red, size: 48),
+                    const SizedBox(height: 16),
+                    Text('Error Loading Legend Car Data', style: Theme.of(context).textTheme.titleLarge),
+                    const SizedBox(height: 8),
+                    Text(repository.errorMessage!, textAlign: TextAlign.center),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: () => repository.fetchAllCars(forceRefresh: true),
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Retry'),
                     ),
                   ],
                 ),
-              ),
-            ),
+              );
+            }
 
-            const SizedBox(height: 16),
+            final legendCars = repository.getLegendCars();
 
-            // Legend cars list/grid
-            Expanded(
-              child: _buildCarListOrGrid(legendCars, 'Legend Cars'),
-            ),
-          ],
-        );
-      },
+            return Column(
+              children: [
+                // Header: AUTO-H | LEGENDARY CAR DEALERSHIP
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
+                  child: IntrinsicHeight(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SvgPicture.asset(
+                          'assets/images/legend-hagerty.svg',
+                          width: 80,
+                          height: 24,
+                        ),
+                        IconButton(
+                          onPressed: Navigator.of(context).pop,
+                          icon: Icon(Icons.close_sharp,),
+                          color: Colors.white,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Legend cars list/grid
+                Expanded(
+                  child: _buildCarListOrGrid(legendCars, 'Legend Cars'),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
     );
   }
 

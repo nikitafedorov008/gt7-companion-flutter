@@ -24,8 +24,7 @@ class LegendaryCarCardItem extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8.0),
+          borderRadius: BorderRadius.circular(2.0),
           border: Border.all(color: Colors.grey[300]!, width: 1),
         ),
         child: Row(
@@ -81,7 +80,7 @@ class LegendaryCarCardItem extends StatelessWidget {
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 11,
-                                color: Colors.grey,
+                                color: Colors.white70,
                               ),
                             ),
                           ],
@@ -95,7 +94,7 @@ class LegendaryCarCardItem extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                            color: Colors.white,
                           ),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 2,
@@ -151,7 +150,7 @@ class LegendaryCarCardItem extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                            color: Colors.white70,
                           ),
                         ),
                       ],

@@ -1,6 +1,6 @@
 {
-    "name": "gt7_telemetry_flutter",
-    "short_name": "gt7_telemetry_flutter",
+    "name": "Gran Turismo 7 Companion",
+    "short_name": "GT7 Companion",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

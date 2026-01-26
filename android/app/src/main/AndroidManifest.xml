@@ -7,7 +7,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
-        android:label="gt7_telemetry_flutter"
+        android:label="GT7 Companion"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
