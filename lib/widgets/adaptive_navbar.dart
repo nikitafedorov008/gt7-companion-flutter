@@ -18,7 +18,7 @@ class AdaptiveNavBar extends StatelessWidget implements PreferredSizeWidget {
 
   void _goHome(BuildContext context) {
     // Prefer tab switching when we're inside a TabsRouter; fallback to push/pop.
-    final tabs = TabsRouter.maybeOf(context);
+    final tabs = AutoTabsRouter.maybeOf(context);
     if (tabs != null) {
       tabs.setActiveIndex(0);
       return;
@@ -34,7 +34,7 @@ class AdaptiveNavBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   void _openPlaceholder(BuildContext context, String title) {
-    final tabs = TabsRouter.maybeOf(context);
+    final tabs = AutoTabsRouter.maybeOf(context);
 
     // Map placeholder buttons to tab indexes when possible.
     if (tabs != null) {
@@ -70,7 +70,7 @@ class AdaptiveNavBar extends StatelessWidget implements PreferredSizeWidget {
     if (_isMobile) {
       // Bottom navigation with centered circular button. When inside a
       // TabsRouter, reflect and control the active index.
-      final tabs = TabsRouter.maybeOf(context);
+      final tabs = AutoTabsRouter.maybeOf(context);
       final active = tabs?.activeIndex ?? -1;
 
       return SizedBox(
@@ -177,7 +177,7 @@ class AdaptiveNavBar extends StatelessWidget implements PreferredSizeWidget {
     }
 
     // Desktop / Web — top navigation bar
-    final tabs = TabsRouter.maybeOf(context);
+    final tabs = AutoTabsRouter.maybeOf(context);
     final active = tabs?.activeIndex ?? -1;
 
     return Container(

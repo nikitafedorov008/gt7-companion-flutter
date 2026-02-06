@@ -21,7 +21,6 @@ class NestedWidget extends StatelessWidget {
         TelemetryDetailsScreenRoute(),
       ],
       builder: (context, child, _) {
-        final tabsRouter = AutoTabsRouter.of(context);
         final isDesktop = MediaQuery.of(context).size.width > 600;
 
         return Scaffold(
