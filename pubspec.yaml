@@ -39,6 +39,9 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
 
+  # macos platform ui kit
+  macos_ui: ^2.2.2
+
   # fluid background
   fluid_background: ^1.0.5
 

@@ -293,13 +293,15 @@ class _HomePageState extends State<HomePage> {
                         if (width > 600) crossAxisCount = 3;
                         if (width > 900) crossAxisCount = 4;
 
+                        double childAspectRatio = crossAxisCount == 2 ? 1.65 : (crossAxisCount == 4 ? 1.25 : 1.55);
+
                         return GridView.count(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           crossAxisCount: crossAxisCount,
                           mainAxisSpacing: 12,
                           crossAxisSpacing: 12,
-                          childAspectRatio: 1.25,
+                          childAspectRatio: childAspectRatio,
                           children: [
                             // Used car dealer — image + white/grey gradient, label below card
                             Column(

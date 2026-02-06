@@ -120,7 +120,7 @@ class AdaptiveNavBar extends StatelessWidget implements PreferredSizeWidget {
                       IconButton(
                         onPressed: () => _openPlaceholder(context, 'Wishlist'),
                         icon: Icon(
-                          Icons.favorite_border,
+                          Icons.flag,
                           color: active == 1
                               ? Colors.pinkAccent
                               : Theme.of(
@@ -182,7 +182,7 @@ class AdaptiveNavBar extends StatelessWidget implements PreferredSizeWidget {
                           ? onPrimary
                           : Theme.of(context).iconTheme.color,
                       height: 32,
-                      width:  32,
+                      width: 32,
                     ),
                   ),
                 ),
@@ -202,74 +202,178 @@ class AdaptiveNavBar extends StatelessWidget implements PreferredSizeWidget {
     }
     final active = tabs?.activeIndex ?? -1;
 
-    return Container(
-      height: preferredSize.height,
-      padding: const EdgeInsets.symmetric(horizontal: 18),
+    return DecoratedBox(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface.withOpacity(0.04),
-        border: Border(
-          bottom: BorderSide(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.04),
-          ),
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.white.withValues(alpha: 0.1),
+            Colors.white.withValues(alpha: 0.02),
+          ],
         ),
       ),
-      child: Row(
-        children: [
-          // circular home button on the left
-          InkWell(
-            onTap: () => _goHome(context),
-            borderRadius: BorderRadius.circular(999),
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: active == 0
-                    ? primary.withOpacity(0.12)
-                    : primary.withOpacity(0.04),
+      child: Container(
+        height: preferredSize.height,
+        padding: const EdgeInsets.symmetric(horizontal: 18),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface.withOpacity(0.04),
+          border: Border(
+            bottom: BorderSide(
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.04),
+            ),
+          ),
+        ),
+        child: Row(
+          children: [
+            // circular home button on the left
+            InkWell(
+              onTap: () => _goHome(context),
+              borderRadius: BorderRadius.circular(999),
+              child: Container(
+                padding: const EdgeInsets.all(3.2),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomRight,
+                    colors: [Colors.white70, Colors.grey],
+                  ),
+                  // color: active == 0
+                  //     ? primary.withOpacity(0.12)
+                  //     : primary.withOpacity(0.04),
+                ),
+                child: ShaderMask(
+                  blendMode: BlendMode.srcIn,
+                  shaderCallback: (bounds) {
+                    return LinearGradient(
+                      colors: [Colors.black38, Colors.black],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ).createShader(bounds);
+                  },
+                  child: SvgPicture.asset(
+                    'assets/images/gran_turismo_logotype.svg',
+                    colorFilter: ColorFilter.mode(
+                      Colors.black.withValues(alpha: 0.6),
+                      BlendMode.srcIn,
+                    ),
+                    // colorFilter: ColorFilter.mode(
+                    //   active == 0 ? primary : Theme.of(context).iconTheme.color!,
+                    //   BlendMode.srcIn,
+                    // ),
+                    height: 36,
+                    width: 36,
+                  ),
+                ),
               ),
-              child: Icon(
-                Icons.home,
-                color: active == 0
-                    ? primary
-                    : Theme.of(context).iconTheme.color,
+            ),
+
+            const SizedBox(width: 6),
+
+            VerticalDivider(indent: 12, endIndent: 12, thickness: 0.4),
+
+            const SizedBox(width: 6),
+            // app title / spacer
+            Text(
+              'Gran Turismo 7 Companion',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const Spacer(),
+
+            VerticalDivider(indent: 12, endIndent: 12, thickness: 0.4),
+
+            const SizedBox(width: 6),
+
+            // two action buttons on the right (map to tabs when available)
+            TextButton.icon(
+              onPressed: () => _openPlaceholder(context, 'Wishlist'),
+              icon: Icon(
+                Icons.flag_outlined,
+                color: active == 1
+                    ? Colors.pinkAccent
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.9),
+              ),
+              label: const Text('Wishlist'),
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.onSurface,
               ),
             ),
-          ),
+            const SizedBox(width: 6),
 
-          const SizedBox(width: 18),
-          // app title / spacer
-          Text('GT7 Companion', style: Theme.of(context).textTheme.titleMedium),
-          const Spacer(),
+            VerticalDivider(indent: 12, endIndent: 12, thickness: 0.4),
 
-          // two action buttons on the right (map to tabs when available)
-          TextButton.icon(
-            onPressed: () => _openPlaceholder(context, 'Wishlist'),
-            icon: Icon(
-              Icons.favorite_border,
-              color: active == 1
-                  ? Colors.pinkAccent
-                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.9),
+            const SizedBox(width: 6),
+
+            TextButton.icon(
+              onPressed: () => _openPlaceholder(context, 'Profile'),
+              icon: Icon(
+                Icons.person_outline,
+                color: active == 2
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.9),
+              ),
+              label: const Text('Profile'),
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
-            label: const Text('Wishlist'),
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.onSurface,
+
+            const SizedBox(width: 6),
+
+            VerticalDivider(indent: 12, endIndent: 12, thickness: 0.4),
+
+            const SizedBox(width: 6),
+
+            // Live clock: HH:mm on top, "D Mon" (Russian short month) below
+            StreamBuilder<DateTime>(
+              stream: Stream<DateTime>.periodic(
+                const Duration(minutes: 1),
+                (_) => DateTime.now(),
+              ),
+              initialData: DateTime.now(),
+              builder: (context, snapshot) {
+                final now = snapshot.data ?? DateTime.now();
+                String two(int v) => v.toString().padLeft(2, '0');
+                const rusMonths = [
+                  'Янв',
+                  'Фев',
+                  'Мар',
+                  'Апр',
+                  'Май',
+                  'Июн',
+                  'Июл',
+                  'Авг',
+                  'Сен',
+                  'Окт',
+                  'Ноя',
+                  'Дек',
+                ];
+                final time = '${two(now.hour)}:${two(now.minute)}';
+                final date = '${now.day} ${rusMonths[now.month - 1]}';
+
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      time,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      date,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                );
+              },
             ),
-          ),
-          const SizedBox(width: 8),
-          TextButton.icon(
-            onPressed: () => _openPlaceholder(context, 'Profile'),
-            icon: Icon(
-              Icons.person_outline,
-              color: active == 2
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.9),
-            ),
-            label: const Text('Profile'),
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.onSurface,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
