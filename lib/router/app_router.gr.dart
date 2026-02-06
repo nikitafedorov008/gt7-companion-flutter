@@ -1,0 +1,216 @@
+// dart format width=80
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+// **************************************************************************
+// AutoRouterGenerator
+// **************************************************************************
+
+// ignore_for_file: type=lint
+// coverage:ignore-file
+
+part of 'app_router.dart';
+
+/// generated route for
+/// [EmptyScreen]
+class EmptyScreenRoute extends PageRouteInfo<EmptyScreenRouteArgs> {
+  EmptyScreenRoute({
+    Key? key,
+    required String title,
+    List<PageRouteInfo>? children,
+  }) : super(
+         EmptyScreenRoute.name,
+         args: EmptyScreenRouteArgs(key: key, title: title),
+         initialChildren: children,
+       );
+
+  static const String name = 'EmptyScreenRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<EmptyScreenRouteArgs>();
+      return EmptyScreen(key: args.key, title: args.title);
+    },
+  );
+}
+
+class EmptyScreenRouteArgs {
+  const EmptyScreenRouteArgs({this.key, required this.title});
+
+  final Key? key;
+
+  final String title;
+
+  @override
+  String toString() {
+    return 'EmptyScreenRouteArgs{key: $key, title: $title}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! EmptyScreenRouteArgs) return false;
+    return key == other.key && title == other.title;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ title.hashCode;
+}
+
+/// generated route for
+/// [GTAutoDisplay]
+class GTAutoDisplayRoute extends PageRouteInfo<void> {
+  const GTAutoDisplayRoute({List<PageRouteInfo>? children})
+    : super(GTAutoDisplayRoute.name, initialChildren: children);
+
+  static const String name = 'GTAutoDisplayRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const GTAutoDisplay();
+    },
+  );
+}
+
+/// generated route for
+/// [HomePage]
+class HomePageRoute extends PageRouteInfo<void> {
+  const HomePageRoute({List<PageRouteInfo>? children})
+    : super(HomePageRoute.name, initialChildren: children);
+
+  static const String name = 'HomePageRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const HomePage();
+    },
+  );
+}
+
+/// generated route for
+/// [LegendaryCarDisplay]
+class LegendaryCarDisplayRoute extends PageRouteInfo<void> {
+  const LegendaryCarDisplayRoute({List<PageRouteInfo>? children})
+    : super(LegendaryCarDisplayRoute.name, initialChildren: children);
+
+  static const String name = 'LegendaryCarDisplayRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const LegendaryCarDisplay();
+    },
+  );
+}
+
+/// generated route for
+/// [NestedWidget]
+class NestedWidgetRoute extends PageRouteInfo<NestedWidgetRouteArgs> {
+  NestedWidgetRoute({Key? key, Widget? child, List<PageRouteInfo>? children})
+    : super(
+        NestedWidgetRoute.name,
+        args: NestedWidgetRouteArgs(key: key, child: child),
+        initialChildren: children,
+      );
+
+  static const String name = 'NestedWidgetRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<NestedWidgetRouteArgs>(
+        orElse: () => const NestedWidgetRouteArgs(),
+      );
+      return NestedWidget(key: args.key, child: args.child);
+    },
+  );
+}
+
+class NestedWidgetRouteArgs {
+  const NestedWidgetRouteArgs({this.key, this.child});
+
+  final Key? key;
+
+  final Widget? child;
+
+  @override
+  String toString() {
+    return 'NestedWidgetRouteArgs{key: $key, child: $child}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! NestedWidgetRouteArgs) return false;
+    return key == other.key && child == other.child;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ child.hashCode;
+}
+
+/// generated route for
+/// [ScreenA]
+class ScreenARoute extends PageRouteInfo<void> {
+  const ScreenARoute({List<PageRouteInfo>? children})
+    : super(ScreenARoute.name, initialChildren: children);
+
+  static const String name = 'ScreenARoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const ScreenA();
+    },
+  );
+}
+
+/// generated route for
+/// [ScreenB]
+class ScreenBRoute extends PageRouteInfo<void> {
+  const ScreenBRoute({List<PageRouteInfo>? children})
+    : super(ScreenBRoute.name, initialChildren: children);
+
+  static const String name = 'ScreenBRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const ScreenB();
+    },
+  );
+}
+
+/// generated route for
+/// [TelemetryDetailsScreen]
+class TelemetryDetailsScreenRoute extends PageRouteInfo<void> {
+  const TelemetryDetailsScreenRoute({List<PageRouteInfo>? children})
+    : super(TelemetryDetailsScreenRoute.name, initialChildren: children);
+
+  static const String name = 'TelemetryDetailsScreenRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const TelemetryDetailsScreen();
+    },
+  );
+}
+
+/// generated route for
+/// [UsedCarDisplay]
+class UsedCarDisplayRoute extends PageRouteInfo<void> {
+  const UsedCarDisplayRoute({List<PageRouteInfo>? children})
+    : super(UsedCarDisplayRoute.name, initialChildren: children);
+
+  static const String name = 'UsedCarDisplayRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const UsedCarDisplay();
+    },
+  );
+}

@@ -1,13 +1,14 @@
 // legendary_car_display.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_avif/flutter_avif.dart';
+import 'package:auto_route/annotations.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import '../models/unified_car_data.dart';
 import '../repositories/unified_car_repository.dart';
 import '../widgets/legendary_car_grid_item.dart';
 
+@RoutePage()
 class LegendaryCarDisplay extends StatefulWidget {
   const LegendaryCarDisplay({super.key});
 
@@ -16,9 +17,12 @@ class LegendaryCarDisplay extends StatefulWidget {
 }
 
 class _LegendaryCarDisplayState extends State<LegendaryCarDisplay> {
+  late final ScrollController _ribbonController;
+
   @override
   void initState() {
     super.initState();
+    _ribbonController = ScrollController();
 
     Future.microtask(() {
       context.read<UnifiedCarRepository>().fetchAllCars();
@@ -26,21 +30,28 @@ class _LegendaryCarDisplayState extends State<LegendaryCarDisplay> {
   }
 
   @override
+  void dispose() {
+    _ribbonController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Material(
-      child: DecoratedBox(
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isDesktop = screenWidth > 600;
+
+    return Scaffold(
+      appBar: null,
+      bottomNavigationBar: null,
+      body: DecoratedBox(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              // Colors.black12,
-              // Colors.black26,
-              // Colors.black38,
-              // Colors.black45,
-              // Colors.black54,
-              Colors.black.withAlpha(160),
-              Colors.black87,
+              Colors.white.withAlpha(4),
+              Colors.white.withAlpha(8),
+              Colors.black12,
               Colors.black,
             ],
           ),
@@ -56,14 +67,22 @@ class _LegendaryCarDisplayState extends State<LegendaryCarDisplay> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.error_outline, color: Colors.red, size: 48),
+                    const Icon(
+                      Icons.error_outline,
+                      color: Colors.red,
+                      size: 48,
+                    ),
                     const SizedBox(height: 16),
-                    Text('Error Loading Legend Car Data', style: Theme.of(context).textTheme.titleLarge),
+                    Text(
+                      'Error Loading Legend Car Data',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
                     const SizedBox(height: 8),
                     Text(repository.errorMessage!, textAlign: TextAlign.center),
                     const SizedBox(height: 24),
                     ElevatedButton.icon(
-                      onPressed: () => repository.fetchAllCars(forceRefresh: true),
+                      onPressed: () =>
+                          repository.fetchAllCars(forceRefresh: true),
                       icon: const Icon(Icons.refresh),
                       label: const Text('Retry'),
                     ),
@@ -78,7 +97,11 @@ class _LegendaryCarDisplayState extends State<LegendaryCarDisplay> {
               children: [
                 // Header: AUTO-H | LEGENDARY CAR DEALERSHIP
                 Padding(
-                  padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
+                  padding: const EdgeInsets.only(
+                    left: 16.0,
+                    right: 16.0,
+                    top: 16.0,
+                  ),
                   child: IntrinsicHeight(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -90,7 +113,7 @@ class _LegendaryCarDisplayState extends State<LegendaryCarDisplay> {
                         ),
                         IconButton(
                           onPressed: Navigator.of(context).pop,
-                          icon: Icon(Icons.close_sharp,),
+                          icon: const Icon(Icons.close_sharp),
                           color: Colors.white,
                         ),
                       ],
@@ -101,9 +124,7 @@ class _LegendaryCarDisplayState extends State<LegendaryCarDisplay> {
                 const SizedBox(height: 16),
 
                 // Legend cars list/grid
-                Expanded(
-                  child: _buildCarListOrGrid(legendCars, 'Legend Cars'),
-                ),
+                Expanded(child: _buildCarListOrGrid(legendCars, 'Legend Cars')),
               ],
             );
           },
@@ -113,36 +134,63 @@ class _LegendaryCarDisplayState extends State<LegendaryCarDisplay> {
   }
 
   Widget _buildCarListOrGrid(List<UnifiedCarData> cars, String title) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    // Use a horizontal, bounded ListView for both mobile and desktop.
+    // Snapshot the list to avoid modifications during layout (this prevents
+    // "_debugDoingThisLayout" assertions when the underlying provider updates).
+    final items = List<UnifiedCarData>.from(cars);
 
-    if (screenWidth < 600) {
-      // 📱 Мобильная версия: ListView — одна карточка в ряду
-      return ListView.builder(
-        padding: const EdgeInsets.all(8.0),
-        itemCount: cars.length,
-        itemBuilder: (context, index) => LegendaryCarCardItem(car: cars[index]),
-      );
-    } else {
-      // 💻 Десктоп/планшет: GridView — сетка
-      return LayoutBuilder(
-        builder: (context, constraints) {
-          int crossAxisCount = 2;
-          if (constraints.maxWidth > 800) crossAxisCount = 3;
-          if (constraints.maxWidth > 1200) crossAxisCount = 4;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isNarrow = constraints.maxWidth < 600;
+        // Fixed item width keeps layout stable and prevents reflow during build.
+        final itemWidth = isNarrow ? 260.0 : 360.0;
+        final height = isNarrow ? 360.0 : 420.0;
 
-          return GridView.builder(
-            padding: const EdgeInsets.all(8.0),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: crossAxisCount,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
-              childAspectRatio: 2.8, // подходит для горизонтальных карточек
+        return SizedBox(
+          height: height,
+          child: Listener(
+            onPointerSignal: (event) {
+              // Access scrollDelta dynamically so the code passes older analyzers
+              final dyn = event as dynamic;
+              try {
+                final sd = dyn.scrollDelta;
+                if (sd == null) return;
+                final rawDelta = (sd.dy != 0 ? sd.dy : sd.dx) as double;
+                final sensitivity = 1.0;
+                final delta = rawDelta * sensitivity;
+                if (_ribbonController.hasClients) {
+                  final max = _ribbonController.position.maxScrollExtent;
+                  final newOffset = (_ribbonController.offset + delta).clamp(
+                    0.0,
+                    max,
+                  );
+                  _ribbonController.jumpTo(newOffset);
+                }
+              } catch (_) {
+                // ignore: no-op on SDKs that don't expose scrollDelta
+              }
+            },
+            child: ListView.builder(
+              controller: _ribbonController,
+              key: const PageStorageKey('legendary_car_ribbon'),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8.0,
+                vertical: 12.0,
+              ),
+              scrollDirection: Axis.horizontal,
+              itemCount: items.length,
+              physics: const BouncingScrollPhysics(),
+              itemBuilder: (context, index) {
+                final car = items[index];
+                return SizedBox(
+                  width: itemWidth,
+                  child: LegendaryCarCardItem(car: car),
+                );
+              },
             ),
-            itemCount: cars.length,
-            itemBuilder: (context, index) => LegendaryCarCardItem(car: cars[index]),
-          );
-        },
-      );
-    }
+          ),
+        );
+      },
+    );
   }
 }

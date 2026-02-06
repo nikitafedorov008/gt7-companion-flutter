@@ -1,6 +1,7 @@
 // used_car_display.dart
 
 import 'package:flutter/material.dart';
+import 'package:auto_route/annotations.dart';
 import 'package:flutter_avif/flutter_avif.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +9,7 @@ import '../models/unified_car_data.dart';
 import '../repositories/unified_car_repository.dart';
 import '../widgets/used_car_grid_item.dart';
 
+@RoutePage()
 class UsedCarDisplay extends StatefulWidget {
   const UsedCarDisplay({super.key});
 
@@ -27,8 +29,14 @@ class _UsedCarDisplayState extends State<UsedCarDisplay> {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      child: Consumer<UnifiedCarRepository>(
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isDesktop = screenWidth > 600;
+
+    return Scaffold(
+      backgroundColor: Colors.white.withAlpha(240),
+      appBar: null,
+      bottomNavigationBar: null,
+      body: Consumer<UnifiedCarRepository>(
         builder: (context, repository, child) {
           if (repository.isLoading) {
             return const Center(child: CircularProgressIndicator());
@@ -41,12 +49,16 @@ class _UsedCarDisplayState extends State<UsedCarDisplay> {
                 children: [
                   const Icon(Icons.error_outline, color: Colors.red, size: 48),
                   const SizedBox(height: 16),
-                  Text('Error Loading Used Car Data', style: Theme.of(context).textTheme.titleLarge),
+                  Text(
+                    'Error Loading Used Car Data',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
                   const SizedBox(height: 8),
                   Text(repository.errorMessage!, textAlign: TextAlign.center),
                   const SizedBox(height: 24),
                   ElevatedButton.icon(
-                    onPressed: () => repository.fetchAllCars(forceRefresh: true),
+                    onPressed: () =>
+                        repository.fetchAllCars(forceRefresh: true),
                     icon: const Icon(Icons.refresh),
                     label: const Text('Retry'),
                   ),
@@ -61,7 +73,11 @@ class _UsedCarDisplayState extends State<UsedCarDisplay> {
             children: [
               // Header: AUTO-H | USED CAR DEALERSHIP
               Padding(
-                padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
+                padding: const EdgeInsets.only(
+                  left: 16.0,
+                  right: 16.0,
+                  top: 16.0,
+                ),
                 child: IntrinsicHeight(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -73,10 +89,7 @@ class _UsedCarDisplayState extends State<UsedCarDisplay> {
                             width: 80,
                             height: 24,
                           ),
-                          VerticalDivider(
-                            thickness: 2,
-                            color: Colors.black87,
-                          ),
+                          VerticalDivider(thickness: 2, color: Colors.black87),
                           const Text(
                             'USED CAR DEALERSHIP',
                             style: TextStyle(
@@ -89,7 +102,7 @@ class _UsedCarDisplayState extends State<UsedCarDisplay> {
                       ),
                       IconButton(
                         onPressed: Navigator.of(context).pop,
-                        icon: Icon(Icons.close_sharp,),
+                        icon: Icon(Icons.close_sharp),
                         color: Colors.black,
                       ),
                     ],
@@ -100,9 +113,7 @@ class _UsedCarDisplayState extends State<UsedCarDisplay> {
               const SizedBox(height: 16),
 
               // Used cars list/grid
-              Expanded(
-                child: _buildCarListOrGrid(usedCars, 'Used Cars'),
-              ),
+              Expanded(child: _buildCarListOrGrid(usedCars, 'Used Cars')),
             ],
           );
         },

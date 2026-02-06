@@ -24,7 +24,7 @@ class UsedCarCardItem extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Colors.grey.withAlpha(280),
           borderRadius: BorderRadius.circular(8.0),
           border: Border.all(color: Colors.grey[300]!, width: 1),
         ),
