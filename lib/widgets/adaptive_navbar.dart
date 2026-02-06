@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart'
     show kIsWeb, defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../router/app_router.dart';
 
 /// Adaptive navigation bar used across the app.
@@ -48,11 +49,11 @@ class AdaptiveNavBar extends StatelessWidget implements PreferredSizeWidget {
 
     // Map placeholder buttons to tab indexes when possible.
     if (tabs != null) {
-      if (title == 'Used') {
+      if (title == 'Wishlist') {
         tabs.setActiveIndex(1);
         return;
       }
-      if (title == 'Legendary') {
+      if (title == 'Profile') {
         tabs.setActiveIndex(2);
         return;
       }
@@ -115,26 +116,26 @@ class AdaptiveNavBar extends StatelessWidget implements PreferredSizeWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      // left button -> Used tab (index 1)
+                      // left button -> Wishlist tab (index 1)
                       IconButton(
-                        onPressed: () => _openPlaceholder(context, 'Used'),
+                        onPressed: () => _openPlaceholder(context, 'Wishlist'),
                         icon: Icon(
-                          Icons.storefront,
+                          Icons.favorite_border,
                           color: active == 1
-                              ? primary
+                              ? Colors.pinkAccent
                               : Theme.of(
                                   context,
                                 ).colorScheme.onSurface.withOpacity(0.9),
                         ),
                       ),
                       const SizedBox(width: 56), // spacer for central button
-                      // right button -> Legendary tab (index 2)
+                      // right button -> Profile tab (index 2)
                       IconButton(
-                        onPressed: () => _openPlaceholder(context, 'Legendary'),
+                        onPressed: () => _openPlaceholder(context, 'Profile'),
                         icon: Icon(
-                          Icons.star,
+                          Icons.person_outline,
                           color: active == 2
-                              ? const Color(0xFFFFD54F)
+                              ? Theme.of(context).colorScheme.primary
                               : Theme.of(
                                   context,
                                 ).colorScheme.onSurface.withOpacity(0.9),
@@ -175,12 +176,13 @@ class AdaptiveNavBar extends StatelessWidget implements PreferredSizeWidget {
                     ],
                   ),
                   child: Center(
-                    child: Icon(
-                      Icons.home,
+                    child: SvgPicture.asset(
+                      'assets/images/gran_turismo_logotype.svg',
                       color: active == 0
                           ? onPrimary
                           : Theme.of(context).iconTheme.color,
-                      size: 32,
+                      height: 32,
+                      width:  32,
                     ),
                   ),
                 ),
@@ -241,28 +243,28 @@ class AdaptiveNavBar extends StatelessWidget implements PreferredSizeWidget {
 
           // two action buttons on the right (map to tabs when available)
           TextButton.icon(
-            onPressed: () => _openPlaceholder(context, 'Used'),
+            onPressed: () => _openPlaceholder(context, 'Wishlist'),
             icon: Icon(
-              Icons.storefront,
+              Icons.favorite_border,
               color: active == 1
-                  ? primary
+                  ? Colors.pinkAccent
                   : Theme.of(context).colorScheme.onSurface.withOpacity(0.9),
             ),
-            label: const Text('Used'),
+            label: const Text('Wishlist'),
             style: TextButton.styleFrom(
               foregroundColor: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const SizedBox(width: 8),
           TextButton.icon(
-            onPressed: () => _openPlaceholder(context, 'Legendary'),
+            onPressed: () => _openPlaceholder(context, 'Profile'),
             icon: Icon(
-              Icons.star,
+              Icons.person_outline,
               color: active == 2
-                  ? const Color(0xFFFFD54F)
+                  ? Theme.of(context).colorScheme.primary
                   : Theme.of(context).colorScheme.onSurface.withOpacity(0.9),
             ),
-            label: const Text('Legendary'),
+            label: const Text('Profile'),
             style: TextButton.styleFrom(
               foregroundColor: Theme.of(context).colorScheme.onSurface,
             ),

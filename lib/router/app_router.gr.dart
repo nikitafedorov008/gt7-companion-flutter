@@ -90,6 +90,22 @@ class HomePageRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [HomeShell]
+class HomeShellRoute extends PageRouteInfo<void> {
+  const HomeShellRoute({List<PageRouteInfo>? children})
+    : super(HomeShellRoute.name, initialChildren: children);
+
+  static const String name = 'HomeShellRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const HomeShell();
+    },
+  );
+}
+
+/// generated route for
 /// [LegendaryCarDisplay]
 class LegendaryCarDisplayRoute extends PageRouteInfo<void> {
   const LegendaryCarDisplayRoute({List<PageRouteInfo>? children})
@@ -107,48 +123,34 @@ class LegendaryCarDisplayRoute extends PageRouteInfo<void> {
 
 /// generated route for
 /// [NestedWidget]
-class NestedWidgetRoute extends PageRouteInfo<NestedWidgetRouteArgs> {
-  NestedWidgetRoute({Key? key, Widget? child, List<PageRouteInfo>? children})
-    : super(
-        NestedWidgetRoute.name,
-        args: NestedWidgetRouteArgs(key: key, child: child),
-        initialChildren: children,
-      );
+class NestedWidgetRoute extends PageRouteInfo<void> {
+  const NestedWidgetRoute({List<PageRouteInfo>? children})
+    : super(NestedWidgetRoute.name, initialChildren: children);
 
   static const String name = 'NestedWidgetRoute';
 
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      final args = data.argsAs<NestedWidgetRouteArgs>(
-        orElse: () => const NestedWidgetRouteArgs(),
-      );
-      return NestedWidget(key: args.key, child: args.child);
+      return const NestedWidget();
     },
   );
 }
 
-class NestedWidgetRouteArgs {
-  const NestedWidgetRouteArgs({this.key, this.child});
+/// generated route for
+/// [ProfilePage]
+class ProfilePageRoute extends PageRouteInfo<void> {
+  const ProfilePageRoute({List<PageRouteInfo>? children})
+    : super(ProfilePageRoute.name, initialChildren: children);
 
-  final Key? key;
+  static const String name = 'ProfilePageRoute';
 
-  final Widget? child;
-
-  @override
-  String toString() {
-    return 'NestedWidgetRouteArgs{key: $key, child: $child}';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (other is! NestedWidgetRouteArgs) return false;
-    return key == other.key && child == other.child;
-  }
-
-  @override
-  int get hashCode => key.hashCode ^ child.hashCode;
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const ProfilePage();
+    },
+  );
 }
 
 /// generated route for
@@ -211,6 +213,22 @@ class UsedCarDisplayRoute extends PageRouteInfo<void> {
     name,
     builder: (data) {
       return const UsedCarDisplay();
+    },
+  );
+}
+
+/// generated route for
+/// [WishlistPage]
+class WishlistPageRoute extends PageRouteInfo<void> {
+  const WishlistPageRoute({List<PageRouteInfo>? children})
+    : super(WishlistPageRoute.name, initialChildren: children);
+
+  static const String name = 'WishlistPageRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const WishlistPage();
     },
   );
 }

@@ -182,9 +182,12 @@ class _LegendaryCarDisplayState extends State<LegendaryCarDisplay> {
               physics: const BouncingScrollPhysics(),
               itemBuilder: (context, index) {
                 final car = items[index];
-                return SizedBox(
-                  width: itemWidth,
-                  child: LegendaryCarCardItem(car: car),
+                return AspectRatio(
+                  aspectRatio: 3 / 5,
+                  child: SizedBox(
+                    width: itemWidth,
+                    child: LegendaryCarCardItem(car: car),
+                  ),
                 );
               },
             ),

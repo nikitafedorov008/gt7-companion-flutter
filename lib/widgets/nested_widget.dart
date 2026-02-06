@@ -16,8 +16,8 @@ class NestedWidget extends StatelessWidget {
       // primary app sections exposed as tabs
       routes: const [
         HomePageRoute(),
-        UsedCarDisplayRoute(),
-        LegendaryCarDisplayRoute(),
+        WishlistPageRoute(),
+        ProfilePageRoute(),
         TelemetryDetailsScreenRoute(),
       ],
       builder: (context, child, _) {
